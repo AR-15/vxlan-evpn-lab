@@ -5,6 +5,8 @@ Oct 18, 2026 · @voight
 ## 实验目标与设计思路
 
 这套拓扑同时验证两种网关模型：VPC 网段（VLAN 10）的网关是 leaf 上的分布式 anycast 网关；容器网段（VLAN 30）的网关在 FortiGate 上，交换机只做二层延伸。
+![Uploading image.png…]()
+
 
 - **Underlay**：四台 Cumulus 之间全部跑 eBGP unnumbered（RFC 5549，用 IPv6 链路本地地址承载 IPv4 路由）。互联链路不规划地址，只规划 loopback。
 - **Overlay**：VXLAN-EVPN。两台 leaf 是 VTEP；两台 spine 组成 MLAG 对，兼做 border，对外用共享的 anycast VTEP 地址。
