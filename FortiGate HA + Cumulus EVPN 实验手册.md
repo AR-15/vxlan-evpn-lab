@@ -504,17 +504,4 @@ chmod +x /etc/rc.local
 - [ ] Leaf 上联故障：关闭 leaf1 的 swp1，确认流量全部经 spine2 转发，且 BGP unnumbered 恢复后无需任何配置
 - [ ] 策略软复位：在 FG 上给 spine 邻居加一条入向 route-map（例如修改 local-pref），观察路由不变；执行 `execute router clear bgp ip 172.16.100.2 soft in` 后，确认新策略生效
 
-## 实验注意事项
 
-最可能卡住实验的是 FortiGate-VM 的许可，而不是网络配置。
-
-- **永久试用许可的限制**：只支持低加密；最多 1 个 CPU、2 GB 内存；接口、防火墙策略、路由各最多 3 个。本实验正好用了 port1 到 port3 三个口和 2 条策略。官方没有说明 agg 和 VLAN 子接口是否计入接口数，如果创建 agg1 或子接口被拒绝，只能退而用 port2 单口做 trunk，V 型冗余的演练就无法进行。
-- **两台 FG 需要两份许可**：社区反馈每个 FortiCare 账号只能有一台永久试用 VM，所以 FG5 和 FG6 需要用两个账号分别激活，或者向厂商申请完整的评估许可。两台的许可类型要一致，否则 HA 可能无法组建。
-- **路由数量**：spine 发往 FW 的 route-map 已经过滤掉主机路由，FG 只会学到 1 条路由，可以避免触及路由数上限。
-- **建网顺序**：underlay BGP → MLAG → EVPN → FG 单机 LACP → 组建 HA → FW BGP → 策略。先让 FG5 单机跑通，再加入 FG6，排错范围更小。
-- **NVUE 保存**：`nv config apply` 使配置生效后，再执行一次 `nv config save` 写入启动配置，避免重启后丢失；需要回滚时用 `nv config history` 查看历史版本。
-
-**Sources**
-
-- [Permanent trial mode for FortiGate-VM（FortiOS 7.4）](https://docs.fortinet.com/document/fortigate/7.4.6/administration-guide/441460)
-- [Community：Failed to download license（每账号一台试用 VM）](https://community.fortinet.com/t5/Support-Forum/Failed-to-download-license/m-p/246410)
